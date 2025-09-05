@@ -71,10 +71,20 @@ app.use((req, res, next) => {
     await setupVite(app, server);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client
+  // Serve the app on port 5000 as required by Replit
   const port = Number(process.env.PORT) || 5000;
   const host = process.env.HOST || "0.0.0.0";
+  
+  server.on('error', (err: any) => {
+    if (err.code === 'EADDRINUSE') {
+      log(`Port ${port} is already in use. Attempting to kill existing process...`);
+      // Try to kill any existing process and restart
+      process.exit(1);
+    } else {
+      log(`Server error: ${err.message}`);
+      process.exit(1);
+    }
+  });
   
   server.listen(port, host, () => {
     log(`serving on ${host}:${port}`);
