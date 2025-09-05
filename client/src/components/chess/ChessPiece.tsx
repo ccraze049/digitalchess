@@ -43,7 +43,7 @@ export const ChessPiece: React.FC<ChessPieceProps> = ({
     <div
       className={`
         absolute inset-0 flex items-center justify-center cursor-pointer select-none
-        text-4xl font-bold transition-all duration-200 z-10
+        text-2xl sm:text-3xl md:text-4xl font-bold transition-all duration-200 z-10
         ${isSelected ? 'transform scale-110 drop-shadow-lg' : ''}
         ${isDragging ? 'opacity-50 transform scale-110' : ''}
         ${piece.color === 'white' ? 'text-gray-100 drop-shadow-md' : 'text-gray-800'}

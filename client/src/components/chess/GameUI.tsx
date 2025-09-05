@@ -58,7 +58,7 @@ export const GameUI: React.FC = () => {
   const gameStatus = getGameStatus();
 
   return (
-    <div className="fixed top-4 right-4 w-80 space-y-4 z-20">
+    <div className="w-full lg:w-80 space-y-4 z-20">
       {/* Game Status */}
       <Card className="bg-gray-900/95 border-gray-700 text-white">
         <CardHeader className="pb-3">

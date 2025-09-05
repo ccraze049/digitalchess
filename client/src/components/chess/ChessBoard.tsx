@@ -74,9 +74,9 @@ export const ChessBoard: React.FC = () => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative w-full max-w-md mx-auto">
       {/* Board container */}
-      <div className="grid grid-cols-8 gap-0 border-4 border-amber-900 bg-amber-900 shadow-2xl">
+      <div className="grid grid-cols-8 gap-0 border-2 sm:border-4 border-amber-900 bg-amber-900 shadow-2xl aspect-square">
         {Array.from({ length: 64 }, (_, index) => {
           const row = Math.floor(index / 8);
           const col = index % 8;
@@ -87,7 +87,7 @@ export const ChessBoard: React.FC = () => {
             <div
               key={squareId}
               className={`
-                relative w-16 h-16 flex items-center justify-center cursor-pointer
+                relative w-full aspect-square flex items-center justify-center cursor-pointer
                 ${getSquareColor(row, col)}
                 transition-colors duration-200
                 hover:brightness-110
@@ -122,18 +122,18 @@ export const ChessBoard: React.FC = () => {
         })}
       </div>
       
-      {/* Board labels */}
-      <div className="absolute -bottom-6 left-0 right-0 flex justify-between px-2">
+      {/* Board labels - Responsive */}
+      <div className="absolute -bottom-4 sm:-bottom-6 left-0 right-0 flex justify-between px-1 sm:px-2">
         {['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].map(letter => (
-          <div key={letter} className="w-16 text-center text-amber-800 font-bold">
+          <div key={letter} className="flex-1 text-center text-amber-800 font-bold text-sm sm:text-base">
             {letter}
           </div>
         ))}
       </div>
       
-      <div className="absolute -left-6 top-0 bottom-0 flex flex-col justify-between py-2">
+      <div className="absolute -left-4 sm:-left-6 top-0 bottom-0 flex flex-col justify-between py-1 sm:py-2">
         {[8, 7, 6, 5, 4, 3, 2, 1].map(number => (
-          <div key={number} className="h-16 flex items-center text-amber-800 font-bold">
+          <div key={number} className="flex-1 flex items-center text-amber-800 font-bold text-sm sm:text-base">
             {number}
           </div>
         ))}
