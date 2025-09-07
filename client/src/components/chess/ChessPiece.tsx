@@ -43,11 +43,12 @@ export const ChessPiece: React.FC<ChessPieceProps> = ({
     <div
       className={`
         absolute inset-0 flex items-center justify-center cursor-pointer select-none
-        text-2xl sm:text-3xl md:text-4xl font-bold transition-all duration-200 z-10
-        ${isSelected ? 'transform scale-110 drop-shadow-lg' : ''}
-        ${isDragging ? 'opacity-50 transform scale-110' : ''}
+        text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold transition-all duration-200 z-10
+        ${isSelected ? 'transform scale-110 drop-shadow-lg animate-pulse' : ''}
+        ${isDragging ? 'opacity-50 transform scale-110 rotate-12' : ''}
         ${piece.color === 'white' ? 'text-gray-100 drop-shadow-md' : 'text-gray-800'}
-        hover:transform hover:scale-105
+        hover:transform hover:scale-105 active:scale-95
+        touch-action: manipulation;
       `}
       draggable
       onDragStart={(e) => onDragStart(e, piece, position)}

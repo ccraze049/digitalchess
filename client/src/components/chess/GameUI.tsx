@@ -58,31 +58,31 @@ export const GameUI: React.FC = () => {
   const gameStatus = getGameStatus();
 
   return (
-    <div className="w-full lg:w-80 space-y-4 z-20">
+    <div className="w-full lg:w-80 space-y-3 sm:space-y-4 z-20">
       {/* Game Status */}
-      <Card className="bg-gray-900/95 border-gray-700 text-white">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center justify-between">
+      <Card className="bg-gray-900/95 backdrop-blur-sm border-gray-700 text-white shadow-xl">
+        <CardHeader className="pb-2 sm:pb-3">
+          <CardTitle className="flex items-center justify-between text-base sm:text-lg">
             <span>Chess Game</span>
-            <Badge className={gameStatus.color}>
+            <Badge className={`${gameStatus.color} text-xs sm:text-sm px-2 py-1`}>
               {gameStatus.status}
             </Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <p className="text-center font-medium">{gameStatus.message}</p>
+        <CardContent className="space-y-2 sm:space-y-3">
+          <p className="text-center font-medium text-sm sm:text-base">{gameStatus.message}</p>
           
           {/* Game Mode Display */}
-          <div className="flex items-center justify-center space-x-2">
+          <div className="flex items-center justify-center space-x-2 bg-gray-800/50 rounded-lg py-2 px-3">
             {gameMode === 'single' ? (
               <>
-                <Bot className="w-4 h-4" />
-                <span className="text-sm">vs AI ({aiDifficulty})</span>
+                <Bot className="w-4 h-4 text-blue-400" />
+                <span className="text-xs sm:text-sm font-medium">vs AI ({aiDifficulty})</span>
               </>
             ) : (
               <>
-                <Users className="w-4 h-4" />
-                <span className="text-sm">Two Players</span>
+                <Users className="w-4 h-4 text-green-400" />
+                <span className="text-xs sm:text-sm font-medium">Two Players</span>
               </>
             )}
           </div>
@@ -90,28 +90,33 @@ export const GameUI: React.FC = () => {
       </Card>
 
       {/* Game Controls */}
-      <Card className="bg-gray-900/95 border-gray-700 text-white">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm">Game Controls</CardTitle>
+      <Card className="bg-gray-900/95 backdrop-blur-sm border-gray-700 text-white shadow-xl">
+        <CardHeader className="pb-2 sm:pb-3">
+          <CardTitle className="text-sm sm:text-base flex items-center">
+            <Settings className="w-4 h-4 mr-2" />
+            Game Controls
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-2 sm:space-y-3">
           {/* Timer Controls */}
           <div className="flex space-x-2">
             <Button
               onClick={timer.isRunning ? pauseTimer : startTimer}
               variant="outline"
               size="sm"
-              className="flex-1"
+              className="flex-1 bg-gray-800/50 hover:bg-gray-700 border-gray-600 text-xs sm:text-sm"
             >
               {timer.isRunning ? (
                 <>
-                  <Pause className="w-4 h-4 mr-2" />
-                  Pause
+                  <Pause className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Pause</span>
+                  <span className="sm:hidden">⏸</span>
                 </>
               ) : (
                 <>
-                  <Play className="w-4 h-4 mr-2" />
-                  Start
+                  <Play className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Start</span>
+                  <span className="sm:hidden">▶</span>
                 </>
               )}
             </Button>
@@ -119,8 +124,9 @@ export const GameUI: React.FC = () => {
               onClick={toggleMute}
               variant="outline"
               size="sm"
+              className="bg-gray-800/50 hover:bg-gray-700 border-gray-600 px-2 sm:px-3"
             >
-              {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+              {isMuted ? <VolumeX className="w-3 h-3 sm:w-4 sm:h-4" /> : <Volume2 className="w-3 h-3 sm:w-4 sm:h-4" />}
             </Button>
           </div>
 
@@ -130,43 +136,51 @@ export const GameUI: React.FC = () => {
               onClick={undoMove}
               variant="outline"
               size="sm"
-              className="flex-1"
+              className="flex-1 bg-gray-800/50 hover:bg-gray-700 border-gray-600 text-xs sm:text-sm"
               disabled={moveHistory.length === 0}
             >
-              <RotateCcw className="w-4 h-4 mr-2" />
-              Undo
+              <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Undo</span>
+              <span className="sm:hidden">↶</span>
             </Button>
             <Button
               onClick={resetGame}
               variant="outline"
               size="sm"
-              className="flex-1"
+              className="flex-1 bg-gray-800/50 hover:bg-gray-700 border-gray-600 text-xs sm:text-sm"
             >
-              New Game
+              <span className="hidden sm:inline">New Game</span>
+              <span className="sm:hidden">🎮</span>
             </Button>
           </div>
 
           {/* Game Mode Toggle */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Game Mode</label>
-            <div className="flex space-x-2">
+            <label className="text-xs sm:text-sm font-medium text-gray-300">Game Mode</label>
+            <div className="flex space-x-1 sm:space-x-2">
               <Button
                 onClick={() => setGameMode('single')}
                 variant={gameMode === 'single' ? 'default' : 'outline'}
                 size="sm"
-                className="flex-1"
+                className={`flex-1 text-xs sm:text-sm ${
+                  gameMode === 'single' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-800/50 hover:bg-gray-700 border-gray-600'
+                }`}
               >
-                <Bot className="w-4 h-4 mr-2" />
-                vs AI
+                <Bot className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">vs AI</span>
+                <span className="sm:hidden">AI</span>
               </Button>
               <Button
                 onClick={() => setGameMode('multi')}
                 variant={gameMode === 'multi' ? 'default' : 'outline'}
                 size="sm"
-                className="flex-1"
+                className={`flex-1 text-xs sm:text-sm ${
+                  gameMode === 'multi' ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-800/50 hover:bg-gray-700 border-gray-600'
+                }`}
               >
-                <Users className="w-4 h-4 mr-2" />
-                2 Player
+                <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">2 Player</span>
+                <span className="sm:hidden">2P</span>
               </Button>
             </div>
           </div>
@@ -174,7 +188,7 @@ export const GameUI: React.FC = () => {
           {/* AI Difficulty */}
           {gameMode === 'single' && (
             <div className="space-y-2">
-              <label className="text-sm font-medium">AI Difficulty</label>
+              <label className="text-xs sm:text-sm font-medium text-gray-300">AI Difficulty</label>
               <div className="flex space-x-1">
                 {(['easy', 'medium', 'hard'] as const).map((difficulty) => (
                   <Button
@@ -182,9 +196,16 @@ export const GameUI: React.FC = () => {
                     onClick={() => setAIDifficulty(difficulty)}
                     variant={aiDifficulty === difficulty ? 'default' : 'outline'}
                     size="sm"
-                    className="flex-1 text-xs"
+                    className={`flex-1 text-xs transition-all ${
+                      aiDifficulty === difficulty 
+                        ? difficulty === 'easy' ? 'bg-green-600 hover:bg-green-700' 
+                        : difficulty === 'medium' ? 'bg-yellow-600 hover:bg-yellow-700'
+                        : 'bg-red-600 hover:bg-red-700'
+                        : 'bg-gray-800/50 hover:bg-gray-700 border-gray-600'
+                    }`}
                   >
-                    {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+                    <span className="hidden sm:inline">{difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</span>
+                    <span className="sm:hidden">{difficulty.charAt(0).toUpperCase()}</span>
                   </Button>
                 ))}
               </div>

@@ -56,7 +56,7 @@ function App() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-amber-50 to-amber-200 relative">
+    <div className="w-full min-h-screen bg-gradient-to-br from-amber-50 via-amber-100 to-amber-200 relative overflow-x-hidden">
       {/* Background 3D Scene (hidden for now, can be enabled for 3D effects) */}
       <div className="absolute inset-0 opacity-0 pointer-events-none">
         <Canvas
