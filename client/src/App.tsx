@@ -79,27 +79,30 @@ function App() {
       </div>
 
       {/* Mobile-first responsive layout */}
-      <div className="relative z-10 min-h-screen flex flex-col lg:flex-row">
+      <div className="relative z-10 min-h-screen">
         {/* Title - Mobile friendly */}
-        <div className="lg:absolute lg:top-4 lg:left-4 z-20 p-4 lg:p-0">
-          <h1 className="text-2xl lg:text-4xl font-bold text-amber-900 drop-shadow-lg text-center lg:text-left">
+        <div className="p-4 text-center lg:absolute lg:top-4 lg:left-4 lg:text-left lg:p-0 z-20">
+          <h1 className="text-2xl lg:text-4xl font-bold text-amber-900 drop-shadow-lg">
             डिजिटल शतरंज
           </h1>
-          <p className="text-amber-800 mt-1 text-center lg:text-left text-sm lg:text-base">
+          <p className="text-amber-800 mt-1 text-sm lg:text-base opacity-90">
             एक व्यापक शतरंज अनुभव
           </p>
         </div>
 
-        {/* Main game area */}
-        <div className="flex-1 flex items-center justify-center p-4 lg:p-8">
-          <div className="flex items-center justify-center w-full max-w-lg lg:max-w-none">
-            <ChessBoard />
+        {/* Main content area */}
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 p-4 pt-2 lg:pt-20">
+          {/* Chess Board */}
+          <div className="flex-1 flex justify-center lg:justify-start">
+            <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl">
+              <ChessBoard />
+            </div>
           </div>
-        </div>
 
-        {/* Game UI - Mobile responsive */}
-        <div className="lg:absolute lg:top-4 lg:right-4 lg:w-80 p-4 lg:p-0">
-          <GameUI />
+          {/* Game UI - Better mobile layout */}
+          <div className="lg:w-80 lg:sticky lg:top-4">
+            <GameUI />
+          </div>
         </div>
       </div>
     </div>
