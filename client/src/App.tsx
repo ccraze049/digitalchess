@@ -20,7 +20,7 @@ const Scene: React.FC = () => {
 
 function App() {
   const { initializeGame } = useChess();
-  const { setHitSound, setSuccessSound } = useAudio();
+  const { setHitSound, setSuccessSound, setBackgroundMusic, playBackgroundMusic } = useAudio();
   const [showGame, setShowGame] = useState(false);
 
   useEffect(() => {
@@ -30,13 +30,20 @@ function App() {
     // Load audio files
     const hitAudio = new Audio('/sounds/hit.mp3');
     const successAudio = new Audio('/sounds/success.mp3');
+    const backgroundMusicAudio = new Audio('/sounds/background-music.mp3');
     
     setHitSound(hitAudio);
     setSuccessSound(successAudio);
+    setBackgroundMusic(backgroundMusicAudio);
+    
+    // Start background music after a short delay
+    setTimeout(() => {
+      playBackgroundMusic();
+    }, 1000);
     
     // Show the game after initialization
     setShowGame(true);
-  }, [initializeGame, setHitSound, setSuccessSound]);
+  }, [initializeGame, setHitSound, setSuccessSound, setBackgroundMusic, playBackgroundMusic]);
 
   if (!showGame) {
     return (

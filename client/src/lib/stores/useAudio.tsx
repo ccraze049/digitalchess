@@ -15,6 +15,8 @@ interface AudioState {
   toggleMute: () => void;
   playHit: () => void;
   playSuccess: () => void;
+  playBackgroundMusic: () => void;
+  stopBackgroundMusic: () => void;
 }
 
 export const useAudio = create<AudioState>((set, get) => ({
@@ -28,11 +30,22 @@ export const useAudio = create<AudioState>((set, get) => ({
   setSuccessSound: (sound) => set({ successSound: sound }),
   
   toggleMute: () => {
-    const { isMuted } = get();
+    const { isMuted, backgroundMusic } = get();
     const newMutedState = !isMuted;
     
-    // Just update the muted state
+    // Update the muted state
     set({ isMuted: newMutedState });
+    
+    // Handle background music based on mute state
+    if (backgroundMusic) {
+      if (newMutedState) {
+        backgroundMusic.pause();
+      } else {
+        backgroundMusic.play().catch(error => {
+          console.log("Background music play prevented:", error);
+        });
+      }
+    }
     
     // Log the change
     console.log(`Sound ${newMutedState ? 'muted' : 'unmuted'}`);
@@ -69,6 +82,25 @@ export const useAudio = create<AudioState>((set, get) => ({
       successSound.play().catch(error => {
         console.log("Success sound play prevented:", error);
       });
+    }
+  },
+
+  playBackgroundMusic: () => {
+    const { backgroundMusic, isMuted } = get();
+    if (backgroundMusic && !isMuted) {
+      backgroundMusic.loop = true;
+      backgroundMusic.volume = 0.3;
+      backgroundMusic.play().catch(error => {
+        console.log("Background music play prevented:", error);
+      });
+    }
+  },
+
+  stopBackgroundMusic: () => {
+    const { backgroundMusic } = get();
+    if (backgroundMusic) {
+      backgroundMusic.pause();
+      backgroundMusic.currentTime = 0;
     }
   }
 }));
