@@ -3,10 +3,15 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import { ChessEngine } from '../chess/ChessEngine';
 import { ChessAI } from '../chess/AI';
 import { GameState, Move, Position, PieceColor, ChessPiece, TimerState } from '../chess/types';
+import { geminiAIService } from '../services/geminiAI';
 
 interface ChessStore extends GameState {
   timer: TimerState;
   ai: ChessAI | null;
+  useGeminiAI: boolean;
+  aiCoaching: string | null;
+  lastMoveExplanation: string | null;
+  isAnalyzing: boolean;
   
   // Actions
   initializeGame: (mode: 'single' | 'multi', difficulty?: 'easy' | 'medium' | 'hard') => void;
@@ -16,6 +21,11 @@ interface ChessStore extends GameState {
   undoMove: () => void;
   setGameMode: (mode: 'single' | 'multi') => void;
   setAIDifficulty: (difficulty: 'easy' | 'medium' | 'hard') => void;
+  toggleGeminiAI: () => void;
+  
+  // AI Analysis actions
+  analyzePosition: () => Promise<void>;
+  explainLastMove: () => Promise<void>;
   
   // Timer actions
   startTimer: () => void;
@@ -45,6 +55,10 @@ export const useChess = create<ChessStore>()(
     aiDifficulty: 'medium',
     timer: initialTimerState,
     ai: null,
+    useGeminiAI: false,
+    aiCoaching: null,
+    lastMoveExplanation: null,
+    isAnalyzing: false,
 
     initializeGame: (mode, difficulty = 'medium') => {
       const board = ChessEngine.initializeBoard();
@@ -179,13 +193,55 @@ export const useChess = create<ChessStore>()(
       });
 
       // AI move for single player mode
-      if (gameMode === 'single' && nextPlayer === 'black' && !isCheckmate && !isStalemate && ai) {
-        setTimeout(() => {
-          const aiMove = ai.getBestMove(newBoard, 'black');
-          if (aiMove) {
-            get().makeMove(aiMove.from, aiMove.to);
-          }
-        }, 500); // Small delay for better UX
+      if (gameMode === 'single' && nextPlayer === 'black' && !isCheckmate && !isStalemate) {
+        const state = get();
+        if (state.useGeminiAI) {
+          // Use Gemini AI
+          setTimeout(async () => {
+            try {
+              const response = await geminiAIService.getAIMove(
+                newBoard, 
+                'black', 
+                [...moveHistory, move], 
+                state.aiDifficulty
+              );
+              
+              if (response.move) {
+                const parsedMove = geminiAIService.parseAlgebraicMove(
+                  response.move, 
+                  newBoard, 
+                  'black'
+                );
+                
+                if (parsedMove) {
+                  get().makeMove(parsedMove.from, parsedMove.to);
+                }
+                
+                // Set AI coaching message
+                if (response.coaching) {
+                  set({ aiCoaching: response.coaching });
+                }
+              }
+            } catch (error) {
+              console.error('Gemini AI move failed, falling back to local AI:', error);
+              // Fallback to local AI
+              if (ai) {
+                const aiMove = ai.getBestMove(newBoard, 'black');
+                if (aiMove) {
+                  get().makeMove(aiMove.from, aiMove.to);
+                }
+              }
+            }
+          }, 1000);
+        } else if (ai) {
+          // Use local AI
+          setTimeout(() => {
+            const aiMove = ai.getBestMove(newBoard, 'black');
+            if (aiMove) {
+              get().makeMove(aiMove.from, aiMove.to);
+            }
+          }, 500);
+        }
       }
     },
 
@@ -242,6 +298,51 @@ export const useChess = create<ChessStore>()(
         aiDifficulty: difficulty,
         ai: new ChessAI(difficulty)
       });
+    },
+
+    toggleGeminiAI: () => {
+      const state = get();
+      set({ useGeminiAI: !state.useGeminiAI });
+    },
+
+    analyzePosition: async () => {
+      const state = get();
+      set({ isAnalyzing: true });
+      
+      try {
+        const analysis = await geminiAIService.analyzePosition(
+          state.board,
+          state.moveHistory
+        );
+        set({ aiCoaching: analysis });
+      } catch (error) {
+        console.error('Position analysis failed:', error);
+        set({ aiCoaching: 'Analysis unavailable at the moment.' });
+      } finally {
+        set({ isAnalyzing: false });
+      }
+    },
+
+    explainLastMove: async () => {
+      const state = get();
+      if (state.moveHistory.length === 0) return;
+      
+      set({ isAnalyzing: true });
+      
+      try {
+        const lastMove = state.moveHistory[state.moveHistory.length - 1];
+        const explanation = await geminiAIService.explainMove(
+          lastMove,
+          state.board,
+          state.moveHistory
+        );
+        set({ lastMoveExplanation: explanation });
+      } catch (error) {
+        console.error('Move explanation failed:', error);
+        set({ lastMoveExplanation: 'Move explanation unavailable.' });
+      } finally {
+        set({ isAnalyzing: false });
+      }
     },
 
     startTimer: () => {
