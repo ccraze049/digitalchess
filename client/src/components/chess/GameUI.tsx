@@ -18,7 +18,8 @@ import {
   Brain,
   MessageSquare,
   Lightbulb,
-  Sparkles
+  Sparkles,
+  Target
 } from 'lucide-react';
 
 export const GameUI: React.FC = () => {
@@ -32,6 +33,7 @@ export const GameUI: React.FC = () => {
     moveHistory,
     timer,
     useGeminiAI,
+    showHints,
     aiCoaching,
     lastMoveExplanation,
     isAnalyzing,
@@ -40,6 +42,8 @@ export const GameUI: React.FC = () => {
     setGameMode,
     setAIDifficulty,
     toggleGeminiAI,
+    toggleHints,
+    getHint,
     analyzePosition,
     explainLastMove,
     startTimer,
@@ -162,6 +166,34 @@ export const GameUI: React.FC = () => {
             >
               <span className="hidden sm:inline">New Game</span>
               <span className="sm:hidden">🎮</span>
+            </Button>
+          </div>
+          
+          {/* Hint System */}
+          <div className="flex space-x-2">
+            <Button
+              onClick={getHint}
+              disabled={isAnalyzing}
+              variant="outline"
+              size="sm"
+              className="flex-1 bg-red-800/50 hover:bg-red-700/70 border-red-600/50 text-xs sm:text-sm"
+            >
+              <Target className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">{isAnalyzing ? 'Getting...' : 'Get Hint'}</span>
+              <span className="sm:hidden">{isAnalyzing ? '...' : '🎯'}</span>
+            </Button>
+            <Button
+              onClick={toggleHints}
+              variant={showHints ? 'default' : 'outline'}
+              size="sm"
+              className={`flex-1 text-xs sm:text-sm ${
+                showHints 
+                  ? 'bg-red-600 hover:bg-red-700 border-red-500' 
+                  : 'bg-gray-800/50 hover:bg-gray-700 border-gray-600'
+              }`}
+            >
+              <span className="hidden sm:inline">Hints {showHints ? 'ON' : 'OFF'}</span>
+              <span className="sm:hidden">{showHints ? '👁️' : '👁️‍🗨️'}</span>
             </Button>
           </div>
 
