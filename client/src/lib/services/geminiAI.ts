@@ -106,6 +106,8 @@ export class GeminiAIService {
     color: PieceColor
   ): Move | null {
     try {
+      console.log('Parsing move:', moveString, 'for color:', color);
+      
       // Handle basic format like "e2-e4"
       const basicMatch = moveString.match(/([a-h][1-8])-([a-h][1-8])/);
       if (basicMatch) {
@@ -118,15 +120,57 @@ export class GeminiAIService {
         const capturedPiece = board[toPos.x][toPos.y];
         
         if (piece && piece.color === color) {
+          console.log('Parsed move successfully:', { from: fromPos, to: toPos, piece: piece.type });
           return {
             from: fromPos,
             to: toPos,
             piece,
             capturedPiece: capturedPiece || undefined
           };
+        } else {
+          console.log('Piece not found or wrong color at position:', fromPos, piece);
         }
       }
       
+      // Handle standard notation like "Nf3", "e4", "Bxc4"
+      const standardMatch = moveString.match(/([NBRQK]?)([a-h]?[1-8]?)x?([a-h][1-8])/);
+      if (standardMatch) {
+        const [, pieceType, disambiguation, toSquare] = standardMatch;
+        const toPos = this.algebraicToPosition(toSquare);
+        
+        // Find the piece that can make this move
+        const targetPieceType = pieceType ? pieceType.toLowerCase() : 'pawn';
+        const pieceMapping: { [key: string]: string } = {
+          'k': 'king',
+          'q': 'queen', 
+          'r': 'rook',
+          'b': 'bishop',
+          'n': 'knight'
+        };
+        const actualPieceType = pieceMapping[targetPieceType] || 'pawn';
+        
+        // Find all pieces of this type that can move to the target square
+        for (let row = 0; row < 8; row++) {
+          for (let col = 0; col < 8; col++) {
+            const piece = board[row][col];
+            if (piece && piece.color === color && piece.type === actualPieceType) {
+              // This is a simplified check - ideally we'd use the chess engine
+              const fromPos = { x: row, y: col };
+              const capturedPiece = board[toPos.x][toPos.y];
+              
+              console.log('Found potential move from standard notation:', { from: fromPos, to: toPos, piece: piece.type });
+              return {
+                from: fromPos,
+                to: toPos,
+                piece,
+                capturedPiece: capturedPiece || undefined
+              };
+            }
+          }
+        }
+      }
+      
+      console.log('Failed to parse move:', moveString);
       return null;
     } catch (error) {
       console.error('Failed to parse move:', error);

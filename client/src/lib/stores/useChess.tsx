@@ -194,17 +194,22 @@ export const useChess = create<ChessStore>()(
 
       // AI move for single player mode
       if (gameMode === 'single' && nextPlayer === 'black' && !isCheckmate && !isStalemate) {
-        const state = get();
-        if (state.useGeminiAI) {
+        const currentState = get();
+        console.log('AI turn - useGeminiAI:', currentState.useGeminiAI, 'ai exists:', !!ai);
+        
+        if (currentState.useGeminiAI) {
           // Use Gemini AI
           setTimeout(async () => {
             try {
+              console.log('Calling Gemini AI for move...');
               const response = await geminiAIService.getAIMove(
                 newBoard, 
                 'black', 
                 [...moveHistory, move], 
-                state.aiDifficulty
+                currentState.aiDifficulty
               );
+              
+              console.log('Gemini AI response:', response);
               
               if (response.move) {
                 const parsedMove = geminiAIService.parseAlgebraicMove(
@@ -214,20 +219,34 @@ export const useChess = create<ChessStore>()(
                 );
                 
                 if (parsedMove) {
+                  console.log('Making AI move:', parsedMove);
                   get().makeMove(parsedMove.from, parsedMove.to);
-                }
-                
-                // Set AI coaching message
-                if (response.coaching) {
-                  set({ aiCoaching: response.coaching });
+                  
+                  // Set AI coaching message
+                  if (response.coaching) {
+                    set({ aiCoaching: response.coaching });
+                  }
+                } else {
+                  console.log('Failed to parse Gemini move, trying local AI fallback');
+                  // Fallback to local AI if move parsing fails
+                  const localAI = get().ai;
+                  if (localAI) {
+                    const aiMove = localAI.getBestMove(newBoard, 'black');
+                    if (aiMove) {
+                      console.log('Local AI fallback move:', aiMove);
+                      get().makeMove(aiMove.from, aiMove.to);
+                    }
+                  }
                 }
               }
             } catch (error) {
               console.error('Gemini AI move failed, falling back to local AI:', error);
               // Fallback to local AI
-              if (ai) {
-                const aiMove = ai.getBestMove(newBoard, 'black');
+              const localAI = get().ai;
+              if (localAI) {
+                const aiMove = localAI.getBestMove(newBoard, 'black');
                 if (aiMove) {
+                  console.log('Local AI error fallback move:', aiMove);
                   get().makeMove(aiMove.from, aiMove.to);
                 }
               }
@@ -235,12 +254,18 @@ export const useChess = create<ChessStore>()(
           }, 1000);
         } else if (ai) {
           // Use local AI
+          console.log('Using local AI...');
           setTimeout(() => {
             const aiMove = ai.getBestMove(newBoard, 'black');
             if (aiMove) {
+              console.log('Local AI move:', aiMove);
               get().makeMove(aiMove.from, aiMove.to);
+            } else {
+              console.log('Local AI returned no move');
             }
           }, 500);
+        } else {
+          console.log('No AI available for move');
         }
       }
     },
