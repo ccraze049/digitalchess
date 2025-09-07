@@ -112,16 +112,16 @@ Current board position (simplified FEN): ${boardFEN}
 Move history: ${history || 'Game start'}
 Difficulty level: ${difficulty} - ${difficultyPrompts[difficulty]}
 
-Please provide:
+Please provide SHORT responses:
 1. Your recommended move in algebraic notation (e.g., "e2-e4" or "Nf3")
-2. A brief explanation of why this move is good
-3. A coaching tip for the human player
+2. One line explanation of why this move is good
+3. One line coaching tip for the human player
 
 Respond in JSON format:
 {
   "move": "suggested move",
-  "explanation": "why this move is strong",
-  "coaching": "helpful tip for the player"
+  "explanation": "one line why this move is strong",
+  "coaching": "one line helpful tip"
 }
 `;
 
@@ -148,18 +148,18 @@ Respond in JSON format:
     const history = this.formatMoveHistory(moveHistory);
 
     const prompt = `
-Analyze this chess position as an expert coach:
+Analyze this chess position briefly:
 
 Current board position: ${boardFEN}
 Move history: ${history || 'Game start'}
 
-Provide a detailed analysis covering:
-1. Material balance
-2. Key tactical opportunities
-3. Strategic themes
-4. Suggested plans for both sides
+Provide a SHORT analysis in exactly 4 lines:
+1. Current situation (1 line)
+2. Key opportunity/threat (1 line) 
+3. Recommended next move (1 line)
+4. Simple reason why (1 line)
 
-Keep the analysis conversational and educational.
+Keep it concise and practical.
 `;
 
     return await this.callGemini(prompt);
@@ -181,12 +181,11 @@ Explain why the chess move "${moveNotation}" was played in this position.
 Board position: ${boardFEN}
 Move: ${moveNotation}
 
-Provide a clear, educational explanation of:
-1. The immediate purpose of this move
-2. How it fits into the overall strategy
-3. What threats or opportunities it creates/addresses
+Provide a SHORT explanation in 2-3 lines:
+1. What this move accomplishes
+2. Why it was the right choice
 
-Keep it conversational and easy to understand.
+Keep it simple and concise.
 `;
 
     return await this.callGemini(prompt);
