@@ -12,6 +12,8 @@ interface ChessStore extends GameState {
   aiCoaching: string | null;
   lastMoveExplanation: string | null;
   isAnalyzing: boolean;
+  showHints: boolean;
+  suggestedMove: Move | null;
   
   // Actions
   initializeGame: (mode: 'single' | 'multi', difficulty?: 'easy' | 'medium' | 'hard') => void;
@@ -26,6 +28,10 @@ interface ChessStore extends GameState {
   // AI Analysis actions
   analyzePosition: () => Promise<void>;
   explainLastMove: () => Promise<void>;
+  
+  // Hint system actions
+  toggleHints: () => void;
+  getHint: () => Promise<void>;
   
   // Timer actions
   startTimer: () => void;
@@ -59,6 +65,8 @@ export const useChess = create<ChessStore>()(
     aiCoaching: null,
     lastMoveExplanation: null,
     isAnalyzing: false,
+    showHints: false,
+    suggestedMove: null,
 
     initializeGame: (mode, difficulty = 'medium') => {
       const board = ChessEngine.initializeBoard();
@@ -365,6 +373,60 @@ export const useChess = create<ChessStore>()(
       } catch (error) {
         console.error('Move explanation failed:', error);
         set({ lastMoveExplanation: 'Move explanation unavailable.' });
+      } finally {
+        set({ isAnalyzing: false });
+      }
+    },
+
+    toggleHints: () => {
+      const state = get();
+      set({ showHints: !state.showHints });
+    },
+
+    getHint: async () => {
+      const state = get();
+      set({ isAnalyzing: true });
+      
+      try {
+        // First try Gemini AI for hints
+        if (state.useGeminiAI) {
+          const response = await geminiAIService.getAIMove(
+            state.board,
+            state.currentPlayer,
+            state.moveHistory,
+            state.aiDifficulty
+          );
+          
+          if (response.move) {
+            const parsedMove = geminiAIService.parseAlgebraicMove(
+              response.move,
+              state.board,
+              state.currentPlayer
+            );
+            
+            if (parsedMove) {
+              set({ suggestedMove: parsedMove, showHints: true });
+              return;
+            }
+          }
+        }
+        
+        // Fallback to local AI
+        if (state.ai) {
+          const aiMove = state.ai.getBestMove(state.board, state.currentPlayer);
+          if (aiMove) {
+            set({ suggestedMove: aiMove, showHints: true });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to get hint:', error);
+        // Fallback to local AI on error
+        if (state.ai) {
+          const aiMove = state.ai.getBestMove(state.board, state.currentPlayer);
+          if (aiMove) {
+            set({ suggestedMove: aiMove, showHints: true });
+          }
+        }
       } finally {
         set({ isAnalyzing: false });
       }

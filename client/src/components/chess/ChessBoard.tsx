@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ChessPiece } from './ChessPiece';
+import { HintArrow } from './HintArrow';
 import { useChess } from '@/lib/stores/useChess';
 import { Position, ChessPiece as ChessPieceType } from '@/lib/chess/types';
 
@@ -8,6 +9,8 @@ export const ChessBoard: React.FC = () => {
     board,
     selectedSquare,
     possibleMoves,
+    showHints,
+    suggestedMove,
     selectSquare,
     makeMove,
     currentPlayer
@@ -17,6 +20,25 @@ export const ChessBoard: React.FC = () => {
     piece: ChessPieceType;
     position: Position;
   } | null>(null);
+  
+  const boardRef = useRef<HTMLDivElement>(null);
+  const [boardSize, setBoardSize] = useState(400);
+  
+  useEffect(() => {
+    const updateBoardSize = () => {
+      if (boardRef.current) {
+        const rect = boardRef.current.getBoundingClientRect();
+        setBoardSize(rect.width);
+      }
+    };
+    
+    updateBoardSize();
+    window.addEventListener('resize', updateBoardSize);
+    
+    return () => {
+      window.removeEventListener('resize', updateBoardSize);
+    };
+  }, []);
 
   const handleSquareClick = (row: number, col: number) => {
     selectSquare({ x: row, y: col });
@@ -121,6 +143,13 @@ export const ChessBoard: React.FC = () => {
             </div>
           );
         })}
+        
+        {/* Hint Arrow Overlay */}
+        {showHints && suggestedMove && (
+          <div className="absolute inset-0 pointer-events-none">
+            <HintArrow move={suggestedMove} boardSize={boardSize} />
+          </div>
+        )}
       </div>
       
       {/* Board labels - Responsive with better mobile spacing */}
