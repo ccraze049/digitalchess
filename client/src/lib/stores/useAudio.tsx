@@ -25,7 +25,11 @@ export const useAudio = create<AudioState>((set, get) => ({
   successSound: null,
   isMuted: true, // Start muted by default
   
-  setBackgroundMusic: (music) => set({ backgroundMusic: music }),
+  setBackgroundMusic: (music) => {
+    music.loop = true;
+    music.volume = 0.3;
+    set({ backgroundMusic: music });
+  },
   setHitSound: (sound) => set({ hitSound: sound }),
   setSuccessSound: (sound) => set({ successSound: sound }),
   
@@ -86,8 +90,8 @@ export const useAudio = create<AudioState>((set, get) => ({
   },
 
   playBackgroundMusic: () => {
-    const { backgroundMusic, isMuted } = get();
-    if (backgroundMusic && !isMuted) {
+    const { backgroundMusic } = get();
+    if (backgroundMusic) {
       backgroundMusic.loop = true;
       backgroundMusic.volume = 0.3;
       backgroundMusic.play().catch(error => {
