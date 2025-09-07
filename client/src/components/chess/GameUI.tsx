@@ -14,7 +14,11 @@ import {
   Volume2, 
   VolumeX,
   Users,
-  Bot
+  Bot,
+  Brain,
+  MessageSquare,
+  Lightbulb,
+  Sparkles
 } from 'lucide-react';
 
 export const GameUI: React.FC = () => {
@@ -27,10 +31,17 @@ export const GameUI: React.FC = () => {
     aiDifficulty,
     moveHistory,
     timer,
+    useGeminiAI,
+    aiCoaching,
+    lastMoveExplanation,
+    isAnalyzing,
     resetGame,
     undoMove,
     setGameMode,
     setAIDifficulty,
+    toggleGeminiAI,
+    analyzePosition,
+    explainLastMove,
     startTimer,
     pauseTimer
   } = useChess();
@@ -211,11 +222,94 @@ export const GameUI: React.FC = () => {
               </div>
             </div>
           )}
+
+          {/* Gemini AI Toggle */}
+          {gameMode === 'single' && (
+            <div className="space-y-2">
+              <Button
+                onClick={toggleGeminiAI}
+                variant={useGeminiAI ? 'default' : 'outline'}
+                size="sm"
+                className={`w-full text-xs sm:text-sm transition-all ${
+                  useGeminiAI 
+                    ? 'bg-purple-600 hover:bg-purple-700 border-purple-500' 
+                    : 'bg-gray-800/50 hover:bg-gray-700 border-gray-600'
+                }`}
+              >
+                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Gemini AI {useGeminiAI ? 'ON' : 'OFF'}</span>
+                <span className="sm:hidden">AI {useGeminiAI ? '✓' : '✗'}</span>
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Timer */}
       <Timer />
+
+      {/* AI Coach Panel */}
+      {useGeminiAI && (
+        <Card className="bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-sm border-purple-600/50 text-white shadow-xl">
+          <CardHeader className="pb-2 sm:pb-3">
+            <CardTitle className="text-sm sm:text-base flex items-center">
+              <Brain className="w-4 h-4 mr-2 text-purple-300" />
+              AI Coach
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 sm:space-y-3">
+            {/* Analysis Controls */}
+            <div className="flex space-x-2">
+              <Button
+                onClick={analyzePosition}
+                disabled={isAnalyzing}
+                variant="outline"
+                size="sm"
+                className="flex-1 bg-purple-800/50 hover:bg-purple-700/70 border-purple-500/50 text-xs sm:text-sm"
+              >
+                <Lightbulb className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">{isAnalyzing ? 'Analyzing...' : 'Analyze'}</span>
+                <span className="sm:hidden">{isAnalyzing ? '...' : '🔍'}</span>
+              </Button>
+              <Button
+                onClick={explainLastMove}
+                disabled={isAnalyzing || moveHistory.length === 0}
+                variant="outline"
+                size="sm"
+                className="flex-1 bg-purple-800/50 hover:bg-purple-700/70 border-purple-500/50 text-xs sm:text-sm"
+              >
+                <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Explain Move</span>
+                <span className="sm:hidden">💬</span>
+              </Button>
+            </div>
+
+            {/* AI Coaching Messages */}
+            {(aiCoaching || lastMoveExplanation) && (
+              <div className="bg-purple-800/30 rounded-lg p-3 border border-purple-500/30">
+                {lastMoveExplanation && (
+                  <div className="mb-2">
+                    <h4 className="text-xs font-medium text-purple-200 mb-1">Move Explanation:</h4>
+                    <p className="text-xs sm:text-sm text-gray-100 leading-relaxed">{lastMoveExplanation}</p>
+                  </div>
+                )}
+                {aiCoaching && (
+                  <div>
+                    <h4 className="text-xs font-medium text-purple-200 mb-1">AI Coach:</h4>
+                    <p className="text-xs sm:text-sm text-gray-100 leading-relaxed">{aiCoaching}</p>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {!aiCoaching && !lastMoveExplanation && !isAnalyzing && (
+              <div className="text-center text-xs sm:text-sm text-purple-200 py-2">
+                Click buttons above for AI analysis and coaching tips!
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Move History */}
       <MoveHistory />
