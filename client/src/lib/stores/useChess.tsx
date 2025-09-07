@@ -227,7 +227,8 @@ export const useChess = create<ChessStore>()(
         possibleMoves: [],
         isCheck,
         isCheckmate,
-        isStalemate
+        isStalemate,
+        timer: { ...get().timer, currentTurn: currentPlayer }
       });
     },
 
